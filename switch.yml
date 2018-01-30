@@ -1,0 +1,9 @@
+---
+
+- hosts: switch
+  serial: 1
+  gather_facts: no
+  connection: local
+  roles:
+    - toptraffic
+  environment: "{{ environment_variables | default({}) }}"

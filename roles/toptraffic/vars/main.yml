@@ -1,0 +1,7 @@
+---
+# vars file for toptraffic
+
+credentials:
+  username: admin
+  host: "{{ inventory_hostname }}"
+  password: "{{ vault_switch }}"

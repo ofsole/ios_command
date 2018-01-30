@@ -1,0 +1,35 @@
+---
+# tasks file for toptraffic
+
+- name: run show version on remote devices
+  ios_command:
+    commands: show interfaces summary
+    provider: "{{ credentials }}"
+  register: show_result
+
+- name: output to a file
+  template:
+    src: split.j2
+    dest: /tmp/ansible_temp_switch
+
+- name: find top traffic user
+  shell: |
+    echo "who is fucking downloading?"
+    value=$(cat /tmp/ansible_temp_switch | grep -o $(cat /tmp/ansible_temp_switch | cut -c 3- | grep -Ev 'Te|Port|Vlan' | awk '{print $6}' | sort -rn |  head -1))
+    key=$(cat /tmp/ansible_temp_switch | grep $value | cut -c 3- | awk '{print $1}')
+    convert_value="$(($value/1024/1024)) Mb/s" 
+    echo "interface: $key  speed: $convert_value"
+  register: download
+
+- name: find top traffic user
+  shell: |
+    echo "who is fucking uploading?"
+    value=$(cat /tmp/ansible_temp_switch | grep -o $(cat /tmp/ansible_temp_switch | cut -c 3- | grep -Ev 'Te|Port|Vlan' | awk '{print $8}' | sort -rn |  head -1))
+    key=$(cat /tmp/ansible_temp_switch | grep $value | cut -c 3- | awk '{print $1}')
+    convert_value="$(($value/1024/1024)) Mb/s" 
+    echo "interface: $key  speed: $convert_value"
+  register: upload
+
+- debug: var=download.stdout_lines
+
+- debug: var=upload.stdout_lines
